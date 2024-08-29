@@ -1,41 +1,61 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom'; // You don't need to use '/extend-expect'
 import App from './App';
 
+// Mocking fetch to control the API responses
 global.fetch = jest.fn();
 
-beforeEach(() => {
-  fetch.mockClear();
-});
-
-test('renders loading state initially', () => {
-  render(<App />);
-  expect(screen.getByText(/loading/i)).toBeInTheDocument();
-});
-
-test('renders user list successfully', async () => {
-  const mockUsers = [
-    { id: 1, name: 'Leanne Graham' },
-    { id: 2, name: 'Ervin Howell' },
-  ];
-
-  fetch.mockResolvedValueOnce({
-    ok: true,
-    json: async () => mockUsers,
+describe('App Component', () => {
+  afterEach(() => {
+    jest.clearAllMocks(); // Clear any previous mocks after each test
   });
 
-  render(<App />);
+  test('renders loading state initially', () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => [],
+    });
 
-  await waitFor(() => expect(screen.getByText('Leanne Graham')).toBeInTheDocument());
-  expect(screen.getByText('Ervin Howell')).toBeInTheDocument();
-});
+    render(<App />);
 
-test('renders error message on API failure', async () => {
-  fetch.mockRejectedValueOnce(new Error('API is down'));
+    const loader = screen.getByRole('status'); // Assuming the loader has a role
+    expect(loader).toBeInTheDocument();
+  });
 
-  render(<App />);
+  test('renders user list when data is fetched successfully', async () => {
+    const mockUsers = [
+      { id: 1, name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', website: 'example.com' },
+      { id: 2, name: 'Jane Doe', email: 'jane@example.com', phone: '987-654-3210', website: 'example.org' },
+    ];
 
-  await waitFor(() => expect(screen.getByText(/error/i)).toBeInTheDocument());
-  expect(screen.getByText(/api is down/i)).toBeInTheDocument();
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockUsers,
+    });
+
+    render(<App />);
+
+    // Wait for users to be rendered
+    await waitFor(() => {
+      expect(screen.getByText('Fetched Users List')).toBeInTheDocument();
+      mockUsers.forEach(user => {
+        expect(screen.getByText(user.name)).toBeInTheDocument();
+        expect(screen.getByText(user.email)).toBeInTheDocument();
+        expect(screen.getByText(user.phone)).toBeInTheDocument();
+        expect(screen.getByText(user.website)).toBeInTheDocument();
+      });
+    });
+  });
+
+  test('displays an error message when the API call fails', async () => {
+    const errorMessage = 'Network response was not ok';
+
+    fetch.mockRejectedValueOnce(new Error(errorMessage));
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText(`Error: ${errorMessage}`)).toBeInTheDocument();
+    });
+  });
 });
