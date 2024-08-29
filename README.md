@@ -3,6 +3,8 @@ Project live link:https://testing-component-in-react.vercel.app/
 Testing Screenshot
 ![Screenshot 2024-08-29 132150](https://github.com/user-attachments/assets/c4ee4aa2-3ef0-40b8-a1e6-88c6be73c9b2)
 
+Fetched Data from API
+![Screenshot 2024-08-29 142213](https://github.com/user-attachments/assets/ffb923f4-a4b0-426e-b3c7-644f1c681fc9)
 
 Task 2: Implement and Test a React Component with API Integration
 
