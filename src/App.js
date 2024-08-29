@@ -26,7 +26,7 @@ const App = () => {
   if (loading) {
     return (
       <div className='bg-gray-300 flex flex-col items-center justify-center h-screen'>
-        <div className="loader"></div>
+        <div className="loader" role="status"></div>
       </div>
     );
   }
